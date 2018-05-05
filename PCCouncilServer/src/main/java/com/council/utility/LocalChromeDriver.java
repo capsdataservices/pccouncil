@@ -33,7 +33,7 @@ public class LocalChromeDriver {
 
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-		capabilities.setCapability(CapabilityType.PROXY, proxy);
+//		capabilities.setCapability(CapabilityType.PROXY, proxy);
 		capabilities.setJavascriptEnabled(true);
 
 		try {

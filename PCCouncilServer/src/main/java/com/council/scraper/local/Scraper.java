@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.council.scraper.IctConnectScraper;
+import com.council.scraper.ScraperType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -32,25 +34,11 @@ public class Scraper {
 
 				if (portal.getAttempts() <= 3) {
 
-					if (portal.getType().equals("idox") && !(portal.getURL() == null) && !(portal.getURL().isEmpty())) {
+					com.council.scraper.Scraper foundScraper = getScraper(portal);
+					if(foundScraper != null) {
 						updatePortalStatus(portal, "IN PROGRESS");
 						logger.info("Started scraping data of : " + portal.getAuthority());
-						IdoxScraper idoxScraper = new IdoxScraper();
-						idoxScraper.extractData(portal);
-						logger.info("Completed scraping data of : " + portal.getAuthority());
-					} else if (portal.getType().equals("ocella") && !(portal.getURL() == null)
-							&& !(portal.getURL().isEmpty())) {
-						updatePortalStatus(portal, "IN PROGRESS");
-						logger.info("Started scraping data of : " + portal.getAuthority());
-						OcellaScraper ocellaScraper = new OcellaScraper();
-						ocellaScraper.extractData(portal);
-						logger.info("Completed scraping data of : " + portal.getAuthority());
-					} else if (portal.getType().equals("northgate") && !(portal.getURL() == null)
-							&& !(portal.getURL().isEmpty())) {
-						updatePortalStatus(portal, "IN PROGRESS");
-						logger.info("Started scraping data of : " + portal.getAuthority());
-						NorthGateScraper northGateScraper = new NorthGateScraper();
-						northGateScraper.extractData(portal);
+						foundScraper.extractData(portal);
 						logger.info("Completed scraping data of : " + portal.getAuthority());
 					} else {
 						logger.warn("There is no scraper available for the portal : " + portal.getURL());
@@ -65,6 +53,38 @@ public class Scraper {
 		} finally {
 			SessionManager.shutdown();
 		}
+	}
+
+	private static Boolean isPortalType(PlanningPortal portal, String type) {
+		if (portal.getType().equals(type) && !(portal.getURL() == null) && !(portal.getURL().isEmpty())) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	private static com.council.scraper.Scraper getScraper(PlanningPortal portal) {
+
+		// idox
+		if(isPortalType(portal,"idox")) {
+			return new IdoxScraper();
+		}
+
+		// ocella
+		if(isPortalType(portal,"ocella")) {
+			return new OcellaScraper();
+		}
+
+		// ocella
+		if(isPortalType(portal,"northgate")) {
+			return new NorthGateScraper();
+		}
+
+		// ict connect
+		if(isPortalType(portal,"ict connect")) {
+			return new IctConnectScraper(ScraperType.LOCAL);
+		}
+
+		return null;
 	}
 
 	private static void updatePortalStatus(PlanningPortal portal, String status) {
@@ -95,8 +115,9 @@ public class Scraper {
 
 		List<PlanningPortal> portals = new ArrayList<>();
 
-		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
-		query.setParameter("type", "northgate");
+//		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
+		Query query = session.createQuery("from PlanningPortal where status = :status");
+//		query.setParameter("type", "northgate");
 		query.setParameter("status", "PENDING");
 		// query.setFirstResult(140);
 		query.setMaxResults(1);

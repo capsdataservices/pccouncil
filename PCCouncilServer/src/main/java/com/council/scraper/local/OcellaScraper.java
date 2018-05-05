@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.council.scraper.Scraper;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -34,7 +35,7 @@ import com.council.utility.LocalChromeDriver;
 import com.council.utility.ScreenShot;
 import com.council.utility.SessionManager;
 
-public class OcellaScraper {
+public class OcellaScraper implements Scraper {
 
 	private static Logger logger = Logger.getLogger(OcellaScraper.class);
 

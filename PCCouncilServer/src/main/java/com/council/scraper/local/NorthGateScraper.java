@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.council.scraper.Scraper;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,7 +30,7 @@ import com.council.entity.PlanningPortal;
 import com.council.utility.DBOperations;
 import com.council.utility.LocalChromeDriver;
 
-public class NorthGateScraper {
+public class NorthGateScraper  implements Scraper {
 
 	private static Logger logger = Logger.getLogger(NorthGateScraper.class);
 

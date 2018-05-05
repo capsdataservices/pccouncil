@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.council.scraper.Scraper;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -32,7 +33,7 @@ import com.council.utility.LocalChromeDriver;
 import com.council.utility.ScreenShot;
 import com.council.utility.SessionManager;
 
-public class IdoxScraper {
+public class IdoxScraper  implements Scraper {
 
 	private static Logger logger = Logger.getLogger(IdoxScraper.class);
 
