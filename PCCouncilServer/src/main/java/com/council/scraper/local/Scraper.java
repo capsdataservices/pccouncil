@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.council.scraper.AmberValleyScraper;
 import com.council.scraper.IctConnectScraper;
 import com.council.scraper.ScraperType;
 import org.apache.log4j.Level;
@@ -82,6 +83,11 @@ public class Scraper {
 		// ict connect
 		if(isPortalType(portal,"ict connect")) {
 			return new IctConnectScraper(ScraperType.LOCAL);
+		}
+
+		// amber valley
+		if(isPortalType(portal,"amber valley")) {
+			return new AmberValleyScraper(ScraperType.LOCAL);
 		}
 
 		return null;
