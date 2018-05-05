@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.council.scraper.AmberValleyScraper;
+import com.council.scraper.AshFieldScraper;
 import com.council.scraper.IctConnectScraper;
 import com.council.scraper.ScraperType;
 import org.apache.log4j.Level;
@@ -88,6 +89,11 @@ public class Scraper {
 		// amber valley
 		if(isPortalType(portal,"amber valley")) {
 			return new AmberValleyScraper(ScraperType.LOCAL);
+		}
+
+		// ashfield
+		if(isPortalType(portal,"ashfield")) {
+			return new AshFieldScraper(ScraperType.LOCAL);
 		}
 
 		return null;
