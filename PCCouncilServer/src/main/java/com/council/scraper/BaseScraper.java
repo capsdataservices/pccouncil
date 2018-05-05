@@ -17,7 +17,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -64,6 +66,25 @@ public abstract class BaseScraper implements Scraper {
         return null;
     }
 
+    protected String constructLocationURL(String address) {
+
+        String locationURL = null;
+
+        if (address == null || address.equals("") || address.toLowerCase().equals("not available")
+                || address.toLowerCase().equals("not applicable")) {
+            logger.info("Address not present");
+        } else {
+            String URL = "https://www.google.com/maps/search/";
+            String charset = "UTF-8";
+            try {
+                locationURL = URL + URLEncoder.encode(address, charset);
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Error occured : " + e);
+            }
+        }
+        return locationURL;
+    }
+
     protected String getHostName(WebDriver driver) throws Exception {
         if (localChromeDriver != null) {
             return localChromeDriver.getHostName(driver);
@@ -74,6 +95,10 @@ public abstract class BaseScraper implements Scraper {
 
     protected void openPortalUrl(PlanningPortal portal) throws Exception {
         getWebDriver().get(portal.getURL());
+    }
+
+    protected void openUrl(String url) throws Exception {
+        getWebDriver().get(url);
     }
 
     protected Boolean isElementDisplayed(String cssSelector) throws Exception {
