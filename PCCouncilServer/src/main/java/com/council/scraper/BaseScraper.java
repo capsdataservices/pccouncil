@@ -66,6 +66,10 @@ public abstract class BaseScraper implements Scraper {
         return null;
     }
 
+    protected void clickOnElement(String selector) throws Exception {
+        getWebDriver().findElement(By.cssSelector(selector)).click();
+    }
+
     protected String constructLocationURL(String address) {
 
         String locationURL = null;
@@ -115,7 +119,7 @@ public abstract class BaseScraper implements Scraper {
     }
 
     protected Object waitUntilElementPresent(String cssSelector, long timeoutInSeconds) throws Exception {
-        return waitUntil(ExpectedConditions.presenceOfElementLocated(By.cssSelector(cssSelector)), 600);
+        return waitUntil(ExpectedConditions.presenceOfElementLocated(By.cssSelector(cssSelector)), timeoutInSeconds);
     }
 
     protected void processUrl(String url, Proxy proxy, Integer timeoutInMs, Consumer<Document> consumer) throws IOException {

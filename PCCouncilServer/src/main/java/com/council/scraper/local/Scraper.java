@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.council.scraper.AmberValleyScraper;
-import com.council.scraper.AshFieldScraper;
-import com.council.scraper.IctConnectScraper;
-import com.council.scraper.ScraperType;
+import com.council.scraper.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -94,6 +91,11 @@ public class Scraper {
 		// ashfield
 		if(isPortalType(portal,"ashfield")) {
 			return new AshFieldScraper(ScraperType.LOCAL);
+		}
+
+		// ashford
+		if(isPortalType(portal,"ashford")) {
+			return new AshfordScraper(ScraperType.LOCAL);
 		}
 
 		return null;
