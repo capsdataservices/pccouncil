@@ -147,7 +147,7 @@ public class NorthGateScraper {
 	}
 
 	private String getStartDate() {
-		return "27-02-2018";
+		return "30-04-2018";
 	}
 
 	private String getTodaysDate() {
