@@ -9,9 +9,6 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import com.council.entity.PlanningPortal;
-import com.council.scraper.server.IdoxScraper;
-import com.council.scraper.server.NorthGateScraper;
-import com.council.scraper.server.OcellaScraper;
 import com.council.utility.SessionManager;
 
 public class TerminatedPortalsScraper {

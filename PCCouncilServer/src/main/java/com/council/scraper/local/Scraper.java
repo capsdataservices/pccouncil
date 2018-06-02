@@ -1,7 +1,6 @@
 package com.council.scraper.local;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Level;

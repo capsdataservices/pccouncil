@@ -31,7 +31,6 @@ import com.council.entity.Application;
 import com.council.entity.PlanningPortal;
 import com.council.utility.DBOperations;
 import com.council.utility.LocalChromeDriver;
-import com.council.utility.ScreenShot;
 import com.council.utility.SessionManager;
 
 public class OcellaScraper {

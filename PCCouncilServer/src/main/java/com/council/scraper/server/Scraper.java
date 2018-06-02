@@ -1,7 +1,6 @@
 package com.council.scraper.server;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Level;
@@ -10,9 +9,6 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import com.council.entity.PlanningPortal;
-import com.council.scraper.server.IdoxScraper;
-import com.council.scraper.server.NorthGateScraper;
-import com.council.scraper.server.OcellaScraper;
 import com.council.utility.SessionManager;
 
 public class Scraper {
