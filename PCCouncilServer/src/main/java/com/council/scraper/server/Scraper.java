@@ -100,7 +100,7 @@ public class Scraper {
 
 		// Query query = session.createQuery("from PlanningPortal");
 		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
-		query.setParameter("type", "northgate");
+		query.setParameter("type", "idox");
 		query.setParameter("status", "PENDING");
 		// query.setFirstResult(140);
 		query.setMaxResults(1);

@@ -318,7 +318,7 @@ public class OcellaScraper {
 	}
 
 	private String getStartDate() {
-		return "20-02-18";
+		return "30-04-18";
 	}
 
 	private String getTodaysDate() {

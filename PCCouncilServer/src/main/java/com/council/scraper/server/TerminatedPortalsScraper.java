@@ -98,7 +98,7 @@ public class TerminatedPortalsScraper {
 		List<PlanningPortal> portals = new ArrayList<>();
 
 		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
-		query.setParameter("type", "northgate");
+		query.setParameter("type", "idox");
 		query.setParameter("status", "TERMINATED");
 		query.setMaxResults(1);
 
