@@ -7,6 +7,7 @@ import java.net.Proxy;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.remote.service.DriverService;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -30,6 +33,7 @@ import com.council.entity.PlanningPortal;
 import com.council.utility.DBOperations;
 import com.council.utility.LocalChromeDriver;
 import com.council.utility.ScreenShot;
+import com.council.utility.ServerChromeDriver;
 import com.council.utility.SessionManager;
 
 public class IdoxScraper {
@@ -38,18 +42,19 @@ public class IdoxScraper {
 
 	private static final Proxy proxy = new Proxy(Proxy.Type.HTTP,
 			InetSocketAddress.createUnresolved("46.101.40.23", 31280));
-
+	
+	private static String OS = System.getProperty("os.name").toLowerCase();
+	
 	public void extractData(PlanningPortal portal) throws Exception {
 
 		WebDriver driver = null;
-
+		List driverService = null;
+		
+		logger.info("operating System : " + OS);
+		
 		try {
 			
-			LocalChromeDriver localChromeDriver = new LocalChromeDriver();
-			driver = localChromeDriver.getDriver();
-
-			String hostName = localChromeDriver.getHostName(driver);
-			logger.info("Running the application on host: " + hostName);
+			driverService= getURL(driver);
 
 			getApplicationsOfType("Validated in this week", driver, portal);
 
@@ -70,8 +75,39 @@ public class IdoxScraper {
 		} finally {
 			driver.close();
 			driver.quit();
+			if (!(OS.indexOf("win") >= 0)) {
+				((DriverService) driverService.get(1)).stop();
+			}
 			logger.info("Quitting the driver and closing every associated window.");
 		}
+	}
+
+	private List getURL(WebDriver driver) throws Exception {
+		
+		List driverService = new ArrayList<>();
+		ChromeDriverService service = null;
+		ServerChromeDriver serverChromeDriver = null;
+		LocalChromeDriver localChromeDriver = null;
+		
+		if (OS.indexOf("win") >= 0) {
+
+			localChromeDriver = new LocalChromeDriver();
+			driver = localChromeDriver.getDriver();
+			driverService.add(driver);
+			
+		} else {
+
+			serverChromeDriver = new ServerChromeDriver();
+			service = serverChromeDriver.loadService();
+			driver = serverChromeDriver.getDriver(service.getUrl());
+			driverService.add(driver);
+			driverService.add(service);
+		}
+
+		String hostName = localChromeDriver.getHostName(driver);
+		logger.info("Running the application on host: " + hostName);
+		
+		return driverService;
 	}
 
 	public void getApplicationsOfType(String type, WebDriver driver, PlanningPortal portal)

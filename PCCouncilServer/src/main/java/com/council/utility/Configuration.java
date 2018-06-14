@@ -88,6 +88,8 @@ public class Configuration {
 		try {
 
 			input = new FileInputStream("config//config.properties");
+			// input = new FileInputStream("../config/config.properties");
+			
 			properties.load(input);
 
 			setChromeDriverPath(properties.getProperty("chromeDriver"));

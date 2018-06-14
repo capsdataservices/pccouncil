@@ -29,6 +29,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.council.entity.Application;
 import com.council.entity.PlanningPortal;
 import com.council.utility.DBOperations;
+import com.council.utility.LocalChromeDriver;
 import com.council.utility.ScreenShot;
 import com.council.utility.ServerChromeDriver;
 import com.council.utility.SessionManager;
@@ -40,42 +41,69 @@ public class IdoxScraper {
 	private static final Proxy proxy = new Proxy(Proxy.Type.HTTP,
 			InetSocketAddress.createUnresolved("46.101.40.23", 31280));
 
+	private static String OS = System.getProperty("os.name").toLowerCase();
+
 	public void extractData(PlanningPortal portal) throws Exception {
 
 		WebDriver driver = null;
 		ChromeDriverService service = null;
 
+		boolean isWindows = OS.indexOf("win") >= 0;
+
+		logger.info("operating System : " + OS);
+
+		if (!isWindows) {
+			service = new ServerChromeDriver().loadService();
+		}
+
 		try {
 
-			ServerChromeDriver serverChromeDriver = new ServerChromeDriver();
-			service = serverChromeDriver.loadService();
-			driver = serverChromeDriver.getDriver(service.getUrl());
-
-			String hostName = serverChromeDriver.getHostName(driver);
-			logger.info("Running the application on host: " + hostName);
+			driver = getPIDriver(service, isWindows);
 
 			getApplicationsOfType("Validated in this week", driver, portal);
 
 			getApplicationsOfType("Decided in this week", driver, portal);
 
 			DBOperations.updateNPortalStatus(portal, "COMPLETED");
-			
+
 		} catch (Exception e) {
-			
+
 			portal.setMessage(e.getMessage());
 			portal.setStatus("TERMINATED");
-		
+
 			DBOperations.updateNPortalToError(portal, e.getMessage());
-			ScreenShot.takeScreenShot(driver, portal, "error");
-			
+			if (!isWindows) {
+				ScreenShot.takeScreenShot(driver, portal, "error");
+			}
+
 			logger.error("Business Object : " + portal.toString());
 			logger.error("Error Occurred in Scraper: " + e);
+
 		} finally {
+
 			driver.close();
 			driver.quit();
-			service.stop();
+			if (!isWindows) {
+				service.stop();
+			}
 			logger.info("Quitting the driver and closing every associated window.");
 		}
+	}
+
+	private WebDriver getPIDriver(ChromeDriverService service, boolean isWindows) {
+
+		WebDriver driver;
+
+		if (isWindows) {
+			driver = new LocalChromeDriver().getDriver();
+		} else {
+			driver = new ServerChromeDriver().getDriver(service.getUrl());
+		}
+
+		String hostName = new ServerChromeDriver().getHostName(driver);
+		logger.info("Running the application on host: " + hostName);
+
+		return driver;
 	}
 
 	public void getApplicationsOfType(String type, WebDriver driver, PlanningPortal portal)
