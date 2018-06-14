@@ -91,5 +91,20 @@ public class ServerChromeDriver {
 
 		return service;
 	}
+	
+	public WebDriver getPIDriver(ChromeDriverService service, boolean isWindows) {
 
+		WebDriver driver;
+
+		if (isWindows) {
+			driver = new LocalChromeDriver().getDriver();
+		} else {
+			driver = new ServerChromeDriver().getDriver(service.getUrl());
+		}
+
+		String hostName = new ServerChromeDriver().getHostName(driver);
+		logger.info("Running the application on host: " + hostName);
+
+		return driver;
+	}
 }

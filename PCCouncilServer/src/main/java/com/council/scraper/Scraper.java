@@ -1,4 +1,4 @@
-package com.council.scraper.local;
+package com.council.scraper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,9 @@ import org.hibernate.query.Query;
 import com.council.entity.PlanningPortal;
 import com.council.utility.SessionManager;
 
-public class TerminatedPortalsScraper {
+public class Scraper {
 
-	private static Logger logger = Logger.getLogger(TerminatedPortalsScraper.class);
+	private static Logger logger = Logger.getLogger(Scraper.class);
 
 	public static void main(String[] args) {
 
@@ -21,40 +21,18 @@ public class TerminatedPortalsScraper {
 		Logger.getLogger("org.hibernate").setLevel(Level.WARN);
 
 		try {
-
+			
 			System.setProperty("jsse.enableSNIExtension", "false");
-
-			List<PlanningPortal> portalUrls = getFailedPortalURLs();
+			
+			List<PlanningPortal> portalUrls = getAllPortalURLs();
 			for (PlanningPortal portal : portalUrls) {
-
-				portal.setLogFile("E:\\PCCouncilScraper\\logs\\logging.log");
-
+				
+				portal.setLogFile(args[0]);
+				
 				if (portal.getAttempts() <= 3) {
 
-					if (portal.getType().equals("idox") && !(portal.getURL() == null) && !(portal.getURL().isEmpty())) {
-						updatePortalStatus(portal, "IN PROGRESS");
-						logger.info("Started scraping data of : " + portal.getAuthority());
-						IdoxScraper idoxScraper = new IdoxScraper();
-						idoxScraper.extractData(portal);
-						logger.info("Completed scraping data of : " + portal.getAuthority());
+					invokeScraper(portal);
 
-					} else if (portal.getType().equals("ocella") && !(portal.getURL() == null)
-							&& !(portal.getURL().isEmpty())) {
-						updatePortalStatus(portal, "IN PROGRESS");
-						logger.info("Started scraping data of : " + portal.getAuthority());
-						OcellaScraper ocellaScraper = new OcellaScraper();
-						ocellaScraper.extractData(portal);
-						logger.info("Completed scraping data of : " + portal.getAuthority());
-					} else if (portal.getType().equals("northgate") && !(portal.getURL() == null)
-							&& !(portal.getURL().isEmpty())) {
-						updatePortalStatus(portal, "IN PROGRESS");
-						logger.info("Started scraping data of : " + portal.getAuthority());
-						NorthGateScraper northGateScraper = new NorthGateScraper();
-						northGateScraper.extractData(portal);
-						logger.info("Completed scraping data of : " + portal.getAuthority());
-					} else {
-						logger.warn("There is no scraper available for the portal : " + portal.getURL());
-					}
 				} else {
 					updatePortalStatus(portal, "FAILED");
 				}
@@ -63,6 +41,33 @@ public class TerminatedPortalsScraper {
 			logger.error("Error occured in main method : " + e);
 		} finally {
 			SessionManager.shutdown();
+		}
+	}
+
+	private static void invokeScraper(PlanningPortal portal) throws Exception {
+		
+		if (portal.getType().equals("idox") && !(portal.getURL() == null) && !(portal.getURL().isEmpty())) {
+			updatePortalStatus(portal, "IN PROGRESS");
+			logger.info("Started scraping data of : " + portal.getAuthority());
+			IdoxScraper idoxScraper = new IdoxScraper();
+			idoxScraper.extractData(portal);
+			logger.info("Completed scraping data of : " + portal.getAuthority());
+		} else if (portal.getType().equals("ocella") && !(portal.getURL() == null)
+				&& !(portal.getURL().isEmpty())) {
+			updatePortalStatus(portal, "IN PROGRESS");
+			logger.info("Started scraping data of : " + portal.getAuthority());
+			OcellaScraper ocellaScraper = new OcellaScraper();
+			ocellaScraper.extractData(portal);
+			logger.info("Completed scraping data of : " + portal.getAuthority());
+		} else if (portal.getType().equals("northgate") && !(portal.getURL() == null)
+				&& !(portal.getURL().isEmpty())) {
+			updatePortalStatus(portal, "IN PROGRESS");
+			logger.info("Started scraping data of : " + portal.getAuthority());
+			NorthGateScraper northGateScraper = new NorthGateScraper();
+			northGateScraper.extractData(portal);
+			logger.info("Completed scraping data of : " + portal.getAuthority());
+		} else {
+			logger.warn("There is no scraper available for the portal : " + portal.getURL());
 		}
 	}
 
@@ -79,26 +84,27 @@ public class TerminatedPortalsScraper {
 		} else {
 			PlanningPortal planningPortal = (PlanningPortal) list.get(0);
 			planningPortal.setStatus(status);
-			planningPortal.setAttempts((portal.getAttempts() + 1));
-			planningPortal.setMessage(portal.getMessage());
+			planningPortal.setMessage(status);
+			planningPortal.setAttempts(1);
 			planningPortal.setLogFile(portal.getLogFile());
 			session.save(planningPortal);
 		}
 		session.getTransaction().commit();
 	}
 
-	private static List<PlanningPortal> getFailedPortalURLs() {
+	private static List<PlanningPortal> getAllPortalURLs() {
 
 		Session session = SessionManager.getSessionFactory().openSession();
 		session.beginTransaction();
 
 		List<PlanningPortal> portals = new ArrayList<>();
 
+		// Query query = session.createQuery("from PlanningPortal");
 		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
-		query.setParameter("type", "ocella");
-		query.setParameter("status", "TERMINATED");
+		query.setParameter("type", "idox");
+		query.setParameter("status", "PENDING");
+		// query.setFirstResult(140);
 		query.setMaxResults(1);
-
 		List list = query.list();
 		if (list.isEmpty()) {
 			logger.info("There are no URL's found in the database");
@@ -110,6 +116,6 @@ public class TerminatedPortalsScraper {
 		}
 		session.getTransaction().commit();
 		return portals;
-
 	}
+
 }

@@ -1,4 +1,4 @@
-package com.council.scraper.server;
+package com.council.scraper;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

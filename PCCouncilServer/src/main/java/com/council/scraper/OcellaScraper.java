@@ -1,4 +1,4 @@
-package com.council.scraper.local;
+package com.council.scraper;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,13 +24,15 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.council.entity.Application;
 import com.council.entity.PlanningPortal;
 import com.council.utility.DBOperations;
-import com.council.utility.LocalChromeDriver;
+import com.council.utility.ScreenShot;
+import com.council.utility.ServerChromeDriver;
 import com.council.utility.SessionManager;
 
 public class OcellaScraper {
@@ -43,15 +45,17 @@ public class OcellaScraper {
 	public void extractData(PlanningPortal portal) throws Exception {
 
 		WebDriver driver = null;
+		ChromeDriverService service = null;
 
 		try {
 
-			LocalChromeDriver localChromeDriver = new LocalChromeDriver();
-			driver = localChromeDriver.getDriver();
+			ServerChromeDriver serverChromeDriver = new ServerChromeDriver();
+			service = serverChromeDriver.loadService();
+			driver = serverChromeDriver.getDriver(service.getUrl());
 
-			String hostName = localChromeDriver.getHostName(driver);
+			String hostName = serverChromeDriver.getHostName(driver);
 			logger.info("Running the application on host: " + hostName);
-			
+
 			getApplicationsOfType("Received in this week", driver, portal);
 
 			getApplicationsOfType("Decided in this week", driver, portal);
@@ -65,14 +69,14 @@ public class OcellaScraper {
 
 			DBOperations.updateNPortalToError(portal, e.getMessage());
 
-			// ScreenShot.takeScreenShot(driver, portal, "error");
+			ScreenShot.takeScreenShot(driver, portal, "error");
 
 			logger.error("Business Object : " + portal.toString());
 			logger.error("Error Occurred in Scraper: " + e);
-
 		} finally {
 			driver.close();
 			driver.quit();
+			service.stop();
 			logger.info("Quitting the driver and closing every associated window.");
 		}
 	}
@@ -161,7 +165,7 @@ public class OcellaScraper {
 
 	private void showAllResults(WebDriver driver) {
 
-		WebDriverWait wait = new WebDriverWait(driver, 60);
+		WebDriverWait wait = new WebDriverWait(driver, 600);
 
 		if (driver.findElements(By.cssSelector("input[type='submit'][value='Show all results']")).size() > 0
 				&& driver.findElement(By.cssSelector("input[type='submit'][value='Show all results']")).isDisplayed()) {
@@ -314,7 +318,7 @@ public class OcellaScraper {
 	}
 
 	private String getStartDate() {
-		return "20-02-18";
+		return "30-04-18";
 	}
 
 	private String getTodaysDate() {

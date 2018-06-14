@@ -15,7 +15,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
 import com.council.entity.PlanningPortal;
-import com.council.scraper.server.OcellaScraper;
+import com.council.scraper.OcellaScraper;
 
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;

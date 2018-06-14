@@ -1,4 +1,4 @@
-package com.council.scraper.server;
+package com.council.scraper;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -45,20 +45,21 @@ public class IdoxScraper {
 
 	public void extractData(PlanningPortal portal) throws Exception {
 
+		// Use this block of code in all scrapers
+		
 		WebDriver driver = null;
 		ChromeDriverService service = null;
 
 		boolean isWindows = OS.indexOf("win") >= 0;
-
 		logger.info("operating System : " + OS);
-
 		if (!isWindows) {
 			service = new ServerChromeDriver().loadService();
 		}
+		driver = new ServerChromeDriver().getPIDriver(service, isWindows);
 
+		// End of block
+		
 		try {
-
-			driver = getPIDriver(service, isWindows);
 
 			getApplicationsOfType("Validated in this week", driver, portal);
 
@@ -88,22 +89,6 @@ public class IdoxScraper {
 			}
 			logger.info("Quitting the driver and closing every associated window.");
 		}
-	}
-
-	private WebDriver getPIDriver(ChromeDriverService service, boolean isWindows) {
-
-		WebDriver driver;
-
-		if (isWindows) {
-			driver = new LocalChromeDriver().getDriver();
-		} else {
-			driver = new ServerChromeDriver().getDriver(service.getUrl());
-		}
-
-		String hostName = new ServerChromeDriver().getHostName(driver);
-		logger.info("Running the application on host: " + hostName);
-
-		return driver;
 	}
 
 	public void getApplicationsOfType(String type, WebDriver driver, PlanningPortal portal)

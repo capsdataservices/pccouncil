@@ -1,4 +1,4 @@
-package com.council.scraper.server;
+package com.council.scraper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,9 @@ import org.hibernate.query.Query;
 import com.council.entity.PlanningPortal;
 import com.council.utility.SessionManager;
 
-public class Scraper {
+public class TerminatedPortalsScraper {
 
-	private static Logger logger = Logger.getLogger(Scraper.class);
+	private static Logger logger = Logger.getLogger(TerminatedPortalsScraper.class);
 
 	public static void main(String[] args) {
 
@@ -24,7 +24,7 @@ public class Scraper {
 			
 			System.setProperty("jsse.enableSNIExtension", "false");
 			
-			List<PlanningPortal> portalUrls = getAllPortalURLs();
+			List<PlanningPortal> portalUrls = getFailedPortalURLs();
 			for (PlanningPortal portal : portalUrls) {
 				
 				portal.setLogFile(args[0]);
@@ -37,6 +37,7 @@ public class Scraper {
 						IdoxScraper idoxScraper = new IdoxScraper();
 						idoxScraper.extractData(portal);
 						logger.info("Completed scraping data of : " + portal.getAuthority());
+
 					} else if (portal.getType().equals("ocella") && !(portal.getURL() == null)
 							&& !(portal.getURL().isEmpty())) {
 						updatePortalStatus(portal, "IN PROGRESS");
@@ -54,7 +55,6 @@ public class Scraper {
 					} else {
 						logger.warn("There is no scraper available for the portal : " + portal.getURL());
 					}
-
 				} else {
 					updatePortalStatus(portal, "FAILED");
 				}
@@ -79,27 +79,26 @@ public class Scraper {
 		} else {
 			PlanningPortal planningPortal = (PlanningPortal) list.get(0);
 			planningPortal.setStatus(status);
-			planningPortal.setMessage(status);
-			planningPortal.setAttempts(1);
+			planningPortal.setAttempts((portal.getAttempts() + 1));
+			planningPortal.setMessage(portal.getMessage());
 			planningPortal.setLogFile(portal.getLogFile());
 			session.save(planningPortal);
 		}
 		session.getTransaction().commit();
 	}
 
-	private static List<PlanningPortal> getAllPortalURLs() {
+	private static List<PlanningPortal> getFailedPortalURLs() {
 
 		Session session = SessionManager.getSessionFactory().openSession();
 		session.beginTransaction();
 
 		List<PlanningPortal> portals = new ArrayList<>();
 
-		// Query query = session.createQuery("from PlanningPortal");
 		Query query = session.createQuery("from PlanningPortal where type = :type and status = :status");
 		query.setParameter("type", "idox");
-		query.setParameter("status", "PENDING");
-		// query.setFirstResult(140);
+		query.setParameter("status", "TERMINATED");
 		query.setMaxResults(1);
+
 		List list = query.list();
 		if (list.isEmpty()) {
 			logger.info("There are no URL's found in the database");
@@ -111,6 +110,6 @@ public class Scraper {
 		}
 		session.getTransaction().commit();
 		return portals;
-	}
 
+	}
 }
